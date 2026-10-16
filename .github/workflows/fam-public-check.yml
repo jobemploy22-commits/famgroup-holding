@@ -26,6 +26,12 @@ jobs:
             sleep 12
           done
           printf "Pages public check: %s\nHTTP status: %s\nSite: %s\n" "$RESULT" "$CODE" "$URL" > new-site/qa/live-status.txt
+          echo "Required URLs:" >> new-site/qa/live-status.txt
+          BASE="https://jobemploy22-commits.github.io/famgroup-holding/new-site"
+          for PAGE in index.html construction.html capital.html technologies.html ventures.html style.css main.js assets/hero.jpg assets/construction.jpg assets/capital.jpg assets/technology.jpg assets/ventures.jpg assets/tehran.svg assets/monogram.svg; do
+            STATUS=$(curl -L -sS -o /dev/null -w '%{http_code}' "$BASE/$PAGE?qa=20261016" || true)
+            printf "%s %s\\n" "$STATUS" "$PAGE" >> new-site/qa/live-status.txt
+          done
           cat new-site/qa/live-status.txt
       - name: Save health check results
         run: |
