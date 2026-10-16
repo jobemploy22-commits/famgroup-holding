@@ -1,0 +1,2 @@
+mobile viewport=390 content=390 cards=4
+desktop viewport=1440 content=1440 cards=4
