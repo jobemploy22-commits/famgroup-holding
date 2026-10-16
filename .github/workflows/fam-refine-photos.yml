@@ -1,0 +1,43 @@
+name: FAM site exterior and growth photography
+on:
+  push:
+    paths:
+      - ".github/workflows/fam-refine-photos.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add growth and architecture concept images
+        run: |
+          python3 - <<'PY'
+          from urllib.request import urlopen, Request
+          from pathlib import Path
+          photos={
+            "ventures.jpg":"https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg?auto=compress&cs=tinysrgb&w=850",
+            "project-a.jpg":"https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg?auto=compress&cs=tinysrgb&w=1000"
+          }
+          for name,url in photos.items():
+            try:
+              with urlopen(Request(url,headers={"User-Agent":"Mozilla/5.0"}),timeout=30) as resp:
+                data=resp.read()
+              if not (len(data)>8000 and data[:3]==b"\xff\xd8\xff"):
+                print("Rejected non-JPEG",name,len(data))
+                continue
+              Path("new-site/assets",name).write_bytes(data)
+              print("Downloaded",name,len(data))
+            except Exception as e:
+              print("Keeping existing image",name,str(e)[:160])
+          PY
+      - name: Commit new locally hosted assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add new-site/assets/*.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "Refine FAM division and exterior concept photography"
+            git push
+          fi
