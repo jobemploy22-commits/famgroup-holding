@@ -1,0 +1,43 @@
+name: FAM design visual QA
+on:
+  push:
+    paths:
+      - ".github/workflows/fam-design-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render mobile and desktop preview in Chrome
+        shell: bash
+        run: |
+          set -e
+          mkdir -p new-site/qa
+          python3 -m http.server 8765 >/tmp/fam-server.log 2>&1 &
+          sleep 3
+          CHROME=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium-browser || command -v chromium || true)
+          if [ -z "$CHROME" ]; then
+            echo "Chrome missing, install playwright browser"
+            npx --yes playwright install chromium
+            CHROME=$(find "$HOME/.cache/ms-playwright" -type f -name chrome | head -1)
+          fi
+          echo "Using: $CHROME"
+          "$CHROME" --headless --no-sandbox --disable-gpu --hide-scrollbars --disable-dev-shm-usage --window-size=390,3600 --screenshot="$(pwd)/new-site/qa/mobile.png" http://127.0.0.1:8765/new-site/index.html || true
+          "$CHROME" --headless --no-sandbox --disable-gpu --hide-scrollbars --disable-dev-shm-usage --window-size=1440,2900 --screenshot="$(pwd)/new-site/qa/desktop.png" http://127.0.0.1:8765/new-site/index.html || true
+          test -s new-site/qa/mobile.png
+          test -s new-site/qa/desktop.png
+          file new-site/qa/*.png
+      - name: Commit rendered QA screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add new-site/qa/
+          if ! git diff --cached --quiet; then
+            git commit -m "Add visual QA screenshot of new FAM website"
+            git push
+          fi
