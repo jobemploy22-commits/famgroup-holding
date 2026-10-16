@@ -1,0 +1,54 @@
+name: Verify independent FAM site published
+on:
+  push:
+    paths:
+      - '.github/workflows/fam-new-site-livecheck.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for GitHub Pages and verify homepage, CSS, and image
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import time, urllib.request, pathlib, datetime, sys
+          base="https://jobemploy22-commits.github.io/famgroup-holding/new-site/"
+          files={"index.html":b"FAM GROUP","style.css":b".hero","assets/hero.jpg":None}
+          for attempt in range(18):
+              success=True
+              report=[]
+              for path,marker in files.items():
+                  url=base+path+"?qa=20261016-" + str(attempt)
+                  try:
+                      req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 FAM-website-smoketest","Cache-Control":"no-cache"})
+                      with urllib.request.urlopen(req,timeout=20) as response:
+                          body=response.read()
+                          code=response.status
+                          typ=response.headers.get("Content-Type","")
+                      if code!=200 or (marker and marker not in body) or (path.endswith(".jpg") and body[:2]!=b'\xff\xd8'):
+                          raise Exception("unexpected response: status="+str(code)+" length="+str(len(body))+" mime="+typ)
+                      report.append(path+" OK "+str(len(body))+" bytes")
+                  except Exception as exc:
+                      print("Attempt",attempt+1,path,str(exc))
+                      success=False
+                      break
+              if success:
+                  text="LIVE WEBSITE CHECK PASSED\n"+datetime.datetime.now(datetime.timezone.utc).isoformat()+"\n"+base+"\n"+"\n".join(report)+"\n"
+                  pathlib.Path("new-site/DEPLOYMENT-STATUS.txt").write_text(text,encoding="utf8")
+                  print(text)
+                  sys.exit(0)
+              time.sleep(20)
+          sys.exit("Site did not pass the smoke test; see logs")
+          PY
+      - name: Save verified live deployment result
+        shell: bash
+        run: |
+          git config user.name "FAM Design Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add new-site/DEPLOYMENT-STATUS.txt
+          git commit -m "Verify FAM preview site served via GitHub Pages"
+          git push
