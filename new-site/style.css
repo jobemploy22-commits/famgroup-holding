@@ -29,3 +29,6 @@ body.en .hero-buttons{justify-content:flex-start}
 body:not(.en) .i18n-en{display:none!important}
 body.en .i18n-fa{display:none!important}
 body.en .i18n-en{display:inline!important}
+
+/* fam-contact-bidi-fix: preserve readable phone numbers in Persian UI */
+.contact-details a[href^="tel:"]{display:block;direction:ltr;text-align:right;unicode-bidi:isolate}
