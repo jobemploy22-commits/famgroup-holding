@@ -32,6 +32,19 @@ jobs:
           test -s new-site/qa/mobile.png
           test -s new-site/qa/desktop.png
           file new-site/qa/*.png
+      - name: Compress screenshots for visual review
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          for name in ('mobile','desktop'):
+              img=Image.open(Path('new-site/qa')/(name+'.png')).convert('RGB')
+              img.thumbnail((1200,5500))
+              out=Path('new-site/qa')/(name+'-review.jpg')
+              img.save(out,format='JPEG',quality=68,optimize=True)
+              print(out, out.stat().st_size, img.size)
+          PY
       - name: Commit rendered QA screenshots
         run: |
           git config user.name "github-actions[bot]"
