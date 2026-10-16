@@ -1,0 +1,65 @@
+name: Screenshot QA for FAM new site
+on:
+  push:
+    paths:
+      - '.github/workflows/fam-site-screenshot-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  visual-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless Chrome
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Capture mobile and desktop and test layout
+        shell: bash
+        run: |
+          mkdir -p new-site/screenshots
+          node <<'JS'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+            const url="https://jobemploy22-commits.github.io/famgroup-holding/new-site/?qa=visual";
+            const setups=[
+              {name:"mobile",viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true},
+              {name:"desktop",viewport:{width:1440,height:900},deviceScaleFactor:1,isMobile:false}
+            ];
+            let reports=[];
+            for(const cfg of setups){
+              const page=await browser.newPage(cfg);
+              const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+              if(response.status()!==200)throw Error("Homepage status "+response.status());
+              await page.screenshot({path:'new-site/screenshots/'+cfg.name+'.png',fullPage:true});
+              const info=await page.evaluate(()=>({
+                viewport:document.documentElement.clientWidth,
+                fullwidth:document.documentElement.scrollWidth,
+                headline:document.querySelector('.hero h1')?.innerText||'',
+                cards:document.querySelectorAll('.division').length,
+                loadedAssets:[...document.querySelectorAll('.division')].map(x=>getComputedStyle(x,'::before').backgroundImage),
+              }));
+              console.log(cfg.name,JSON.stringify(info));
+              if(info.fullwidth>info.viewport+2)throw Error("Horizontal overflow at "+cfg.name+": "+JSON.stringify(info));
+              if(info.cards!==4)throw Error("Expected four divisions");
+              reports.push(cfg.name+" viewport="+info.viewport+" content="+info.fullwidth+" cards="+info.cards);
+              await page.close();
+            }
+            await browser.close();
+            require('fs').writeFileSync('new-site/screenshots/QA.txt',reports.join('\n')+'\n');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+      - name: Commit screenshots for visual review
+        shell: bash
+        run: |
+          git config user.name "FAM Design Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add new-site/screenshots/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add mobile and desktop screenshots of published new FAM site"
+          git push
