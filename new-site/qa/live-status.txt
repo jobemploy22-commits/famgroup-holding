@@ -1,3 +1,18 @@
 Pages public check: OK
 HTTP status: 200
 Site: https://jobemploy22-commits.github.io/famgroup-holding/new-site/index.html?check=20261016
+Required URLs:
+200 index.html
+200 construction.html
+200 capital.html
+200 technologies.html
+200 ventures.html
+200 style.css
+200 main.js
+200 assets/hero.jpg
+200 assets/construction.jpg
+200 assets/capital.jpg
+200 assets/technology.jpg
+200 assets/ventures.jpg
+200 assets/tehran.svg
+200 assets/monogram.svg
