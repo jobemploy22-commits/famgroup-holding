@@ -32,3 +32,29 @@ body.en .i18n-en{display:inline!important}
 
 /* fam-contact-bidi-fix: preserve readable phone numbers in Persian UI */
 .contact-details a[href^="tel:"]{display:block;direction:ltr;text-align:right;unicode-bidi:isolate}
+
+/* FAM Construction — independently editable expertise and portfolio */
+.construction-story{padding-bottom:35px}
+.construction-intro{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:42px}
+.construction-intro .content-text{margin:0;color:#d2cdc5;line-height:2.3;text-align:justify}
+.construction-subtitle{margin-top:36px}
+.construction-services{margin-top:16px}
+.construction-services .feature{min-height:180px;background:linear-gradient(150deg,#121c2a,#0e1621);border-color:#6a5136}
+.construction-services .feature strong{display:block;line-height:1.75;font-size:16px}
+.construction-services .feature p{margin-bottom:0}
+.construction-strengths{margin-top:40px;padding:30px;background:linear-gradient(145deg,#141e2b,#090f19);border:1px solid #806039;border-radius:10px}
+.strengths-head .latin{font:600 11px Arial;color:var(--gold);letter-spacing:.19em}
+.strengths-head h3{font-size:clamp(20px,2.4vw,26px);line-height:1.65;margin:8px 0 24px}
+.strengths-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.strengths-grid>div{padding:10px 0;border-top:1px solid #655037;min-width:0}
+.strengths-grid .strength-number{display:block;color:var(--gold);font:600 23px Georgia,serif;margin:0 0 12px}
+.strengths-grid strong{display:block;font-size:14px;line-height:1.7;color:#f4e2c5}
+.strengths-grid p{font-size:12px;line-height:2.1;color:#c7c2bb;margin-bottom:0}
+.experience-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 25px}
+.experience-item{background:linear-gradient(150deg,#141d2a,#0b121c);border:1px solid #685137;border-radius:8px;min-width:0;padding:21px;min-height:157px}
+.experience-item small{display:block;direction:ltr;text-align:right;font:600 10px Arial;letter-spacing:.12em;color:var(--gold)}
+.experience-item h3{font-size:17px;line-height:1.6;margin:12px 0 8px;color:#f1e4d2}
+.experience-item p{font-size:12px;line-height:2;color:#c9c3b8;margin:0}
+.experience-note{font-size:11px;line-height:2;color:#b8aa95;margin:14px 0 26px}
+@media(max-width:960px){.construction-intro{grid-template-columns:1fr;gap:12px}.strengths-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.experience-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.construction-story{padding-bottom:20px}.construction-intro{margin-bottom:26px}.construction-intro .content-text{text-align:right;font-size:13px;line-height:2.2}.construction-subtitle{margin-top:32px}.construction-services .feature{min-height:0}.construction-strengths{padding:20px 16px;margin-top:30px}.strengths-grid{grid-template-columns:1fr;gap:12px}.strengths-grid>div{padding:8px 0}.experience-grid{grid-template-columns:1fr;gap:12px}.experience-item{min-height:0;padding:20px}.sub-hero h1{font-size:clamp(25px,7.7vw,36px)!important;max-width:100%;overflow-wrap:anywhere;line-height:1.2;word-break:break-word}.sub-hero .container{min-width:0;overflow:hidden}}
