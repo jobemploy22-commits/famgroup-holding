@@ -36,7 +36,7 @@ jobs:
               const page=await browser.newPage(cfg);
               const response=await page.goto(url,{waitUntil:'networkidle',timeout:90000});
               if(response.status()!==200)throw Error("Homepage status "+response.status());
-              await page.screenshot({path:'new-site/screenshots/'+cfg.name+'.png',fullPage:true});
+              await page.screenshot({path:'new-site/screenshots/'+cfg.name+'.jpg',type:'jpeg',quality:67,fullPage:true});
               const info=await page.evaluate(()=>({
                 viewport:document.documentElement.clientWidth,
                 fullwidth:document.documentElement.scrollWidth,
