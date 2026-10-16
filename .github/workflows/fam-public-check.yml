@@ -1,0 +1,38 @@
+name: FAM public Pages availability check
+on:
+  push:
+    paths:
+      - ".github/workflows/fam-public-check.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify public new site with HTTP status and content
+        shell: bash
+        run: |
+          set -u
+          URL="https://jobemploy22-commits.github.io/famgroup-holding/new-site/index.html?check=20261016"
+          mkdir -p new-site/qa
+          CODE=""
+          RESULT="NOT_READY"
+          for i in $(seq 1 8); do
+            CODE=$(curl -L -sS -o /tmp/fam-page.html -w '%{http_code}' "$URL" || true)
+            echo "Attempt $i HTTP=$CODE"
+            if [ "$CODE" = "200" ] && grep -q 'FAM GROUP' /tmp/fam-page.html && grep -q 'style.css' /tmp/fam-page.html; then RESULT="OK"; break; fi
+            sleep 12
+          done
+          printf "Pages public check: %s\nHTTP status: %s\nSite: %s\n" "$RESULT" "$CODE" "$URL" > new-site/qa/live-status.txt
+          cat new-site/qa/live-status.txt
+      - name: Save health check results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add new-site/qa/live-status.txt
+          if ! git diff --staged --quiet; then
+            git commit -m "Record public HTTP availability of new FAM website"
+            git push
+          fi
