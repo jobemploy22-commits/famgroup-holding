@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://holding.famgroupofficial.com/sitemap.xml
